@@ -65,6 +65,18 @@ main{padding:18px}
 .kg:focus{outline:none;border-color:var(--fire)}
 .kgu{color:var(--dim);font-size:13px}
 .photo{display:inline-block;margin-top:10px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--aqua);font-size:12.5px;font-weight:600;text-decoration:none}
+.exo-actions{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.exo-actions .photo{margin-top:0}
+.ezbtn{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--muted);font-family:'Barlow';font-size:12.5px;font-weight:600;cursor:pointer}
+.ezbtn.on{border-color:var(--fire);background:var(--fire);color:var(--bg)}
+.sug{color:var(--fire);font-size:12px;font-weight:600;margin-top:3px}
+.sug b{font-weight:800}
+.ez{color:var(--fire);font-size:11px;font-weight:700}
+.subnote{color:var(--aqua);font-size:11.5px;font-style:italic;margin-top:2px}
+.sub{width:100%;margin-top:10px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--txt);font-family:'Barlow';font-size:13px;font-weight:500}
+.sub:focus{outline:none;border-color:var(--aqua)}
+.hex .hz{font-size:11px}
+.hex .hsub{color:var(--aqua);font-size:11px}
 
 /* ---- historique ---- */
 .hday{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
@@ -166,30 +178,69 @@ textarea{width:100%;min-height:110px;background:var(--surface2);border:1px solid
 /* ================= PROGRAMMES ================= */
 const PROGRAMS = {
   salleA: { label: "🏋️ Salle A", exos: [
-    { n: "Leg Press", t: "3 × 12", kg: true, q: "leg press machine salle sport" },
-    { n: "Leg Curl", t: "3 × 12", kg: true, q: "leg curl machine ischio" },
-    { n: "Chest Press", t: "3 × 12", kg: true, q: "chest press machine assise" },
-    { n: "Tirage poulie haute", t: "3 × 12", kg: true, q: "lat pulldown machine tirage poulie haute" },
-    { n: "Low Row machine", t: "3 × 10", kg: true, q: "low row machine rowing assis" },
-    { n: "Élévations latérales haltères", t: "3 × 15", kg: true, q: "élévations latérales haltères épaules" },
-    { n: "Planche", t: "3 × 45 sec", kg: false, q: "planche gainage position" },
+    { n: "Leg Press", t: "3 × 12", kg: true, inc: 5, q: "leg press machine salle sport", alts:[
+      { n:"Hack Squat", q:"hack squat machine" },
+      { n:"Presse à cuisses horizontale", q:"presse horizontale jambes machine" },
+      { n:"Goblet squat haltère", q:"goblet squat haltère" } ]},
+    { n: "Leg Curl", t: "3 × 12", kg: true, inc: 3, q: "leg curl machine ischio", alts:[
+      { n:"Leg curl assis", q:"seated leg curl machine" },
+      { n:"Leg curl debout", q:"standing leg curl machine" } ]},
+    { n: "Chest Press", t: "3 × 12", kg: true, inc: 2.5, q: "chest press machine assise", alts:[
+      { n:"Développé haltères", q:"développé couché haltères" },
+      { n:"Pec deck (écarté machine)", q:"pec deck machine écarté" },
+      { n:"Pompes", q:"pompes position correcte" } ]},
+    { n: "Tirage poulie haute", t: "3 × 12", kg: true, inc: 2.5, q: "lat pulldown machine tirage poulie haute", alts:[
+      { n:"Tirage prise neutre", q:"tirage poulie haute prise neutre" },
+      { n:"Tirage prise serrée", q:"close grip lat pulldown" },
+      { n:"Traction assistée", q:"machine traction assistée" } ]},
+    { n: "Low Row machine", t: "3 × 10", kg: true, inc: 2.5, q: "low row machine rowing assis", alts:[
+      { n:"Rowing poulie basse", q:"seated cable row poulie basse" },
+      { n:"Rowing haltère 1 bras", q:"rowing haltère un bras banc" },
+      { n:"Tirage horizontal machine", q:"seated row machine dos" } ]},
+    { n: "Élévations latérales haltères", t: "3 × 15", kg: true, inc: 1, q: "élévations latérales haltères épaules", alts:[
+      { n:"Élévations latérales poulie", q:"élévation latérale poulie basse" },
+      { n:"Élévations latérales machine", q:"lateral raise machine épaules" } ]},
+    { n: "Planche", t: "3 × 45 sec", kg: false, q: "planche gainage position", alts:[
+      { n:"Gainage bras tendus", q:"gainage bras tendus planche haute" },
+      { n:"Gainage latéral", q:"gainage latéral position" } ]},
   ]},
   salleB: { label: "🏋️ Salle B", exos: [
-    { n: "Leg Extension", t: "3 × 12", kg: true, q: "leg extension machine quadriceps" },
-    { n: "Presse à mollets (ou debout haltères)", t: "3 × 15", kg: true, q: "calf raise machine presse mollets" },
-    { n: "Développé épaules", t: "3 × 12", kg: true, q: "shoulder press machine développé épaules" },
-    { n: "Tirage poulie haute prise serrée", t: "3 × 12", kg: true, q: "close grip lat pulldown prise serrée" },
-    { n: "Curl biceps haltères", t: "3 × 12", kg: true, q: "curl biceps haltères debout" },
-    { n: "Tricep pushdown", t: "3 × 12", kg: true, q: "tricep pushdown poulie corde" },
-    { n: "Crunch machine", t: "3 × 15", kg: true, q: "crunch machine abdominaux assis" },
+    { n: "Leg Extension", t: "3 × 12", kg: true, inc: 3, q: "leg extension machine quadriceps", alts:[
+      { n:"Presse à cuisses", q:"leg press machine salle sport" },
+      { n:"Hack Squat", q:"hack squat machine" },
+      { n:"Fentes haltères", q:"fentes haltères exercice" } ]},
+    { n: "Presse à mollets (ou debout haltères)", t: "3 × 15", kg: true, inc: 2.5, q: "calf raise machine presse mollets", alts:[
+      { n:"Mollets debout machine", q:"standing calf raise machine" },
+      { n:"Mollets à la presse", q:"calf raise leg press" },
+      { n:"Mollets debout haltères", q:"mollets debout haltères" } ]},
+    { n: "Développé épaules", t: "3 × 12", kg: true, inc: 2.5, q: "shoulder press machine développé épaules", alts:[
+      { n:"Développé haltères assis", q:"développé épaules haltères assis" },
+      { n:"Développé militaire machine", q:"shoulder press machine" },
+      { n:"Élévations frontales", q:"élévations frontales haltères" } ]},
+    { n: "Tirage poulie haute prise serrée", t: "3 × 12", kg: true, inc: 2.5, q: "close grip lat pulldown prise serrée", alts:[
+      { n:"Tirage prise large", q:"lat pulldown barre large" },
+      { n:"Tirage prise neutre", q:"tirage poulie haute prise neutre" },
+      { n:"Rowing poulie basse", q:"seated cable row poulie basse" } ]},
+    { n: "Curl biceps haltères", t: "3 × 12", kg: true, inc: 1, q: "curl biceps haltères debout", alts:[
+      { n:"Curl à la barre", q:"curl barre biceps debout" },
+      { n:"Curl poulie", q:"curl biceps poulie basse" },
+      { n:"Curl machine", q:"curl biceps machine" } ]},
+    { n: "Tricep pushdown", t: "3 × 12", kg: true, inc: 2.5, q: "tricep pushdown poulie corde", alts:[
+      { n:"Extension corde poulie", q:"extension triceps corde poulie" },
+      { n:"Dips machine", q:"dips machine triceps" },
+      { n:"Extension nuque haltère", q:"extension triceps nuque haltère" } ]},
+    { n: "Crunch machine", t: "3 × 15", kg: true, inc: 2.5, q: "crunch machine abdominaux assis", alts:[
+      { n:"Relevé de jambes", q:"relevé de jambes abdos" },
+      { n:"Crunch au sol", q:"crunch abdominaux sol" },
+      { n:"Gainage planche", q:"planche gainage position" } ]},
   ]},
   maison: { label: "🏠 Maison (dépannage)", exos: [
-    { n: "Squat", t: "3 × 15", kg: false, q: "squat poids du corps position" },
-    { n: "Pompes", t: "3 × max", kg: false, q: "pompes position correcte" },
-    { n: "Fentes sur place", t: "3 × 10/jambe", kg: false, q: "fentes exercice position" },
-    { n: "Planche", t: "3 × 30 sec", kg: false, q: "planche gainage position" },
-    { n: "Superman", t: "3 × 15", kg: false, q: "superman exercice dos sol" },
-    { n: "Crunchs inversés", t: "3 × 15", kg: false, q: "crunch inversé exercice abdos" },
+    { n: "Squat", t: "3 × 15", kg: false, q: "squat poids du corps position", alts:[] },
+    { n: "Pompes", t: "3 × max", kg: false, q: "pompes position correcte", alts:[] },
+    { n: "Fentes sur place", t: "3 × 10/jambe", kg: false, q: "fentes exercice position", alts:[] },
+    { n: "Planche", t: "3 × 30 sec", kg: false, q: "planche gainage position", alts:[] },
+    { n: "Superman", t: "3 × 15", kg: false, q: "superman exercice dos sol", alts:[] },
+    { n: "Crunchs inversés", t: "3 × 15", kg: false, q: "crunch inversé exercice abdos", alts:[] },
   ]},
 };
 const WATER_GOAL = 3000, GLASS = 250;
@@ -198,76 +249,7 @@ const KEY = "lofit.v1";
 /* ================= DONNÉES (stockage Claude persistant) ================= */
 let db = { days:{}, mode: null };
 let saveTimer = null;
-const SEED = {
-  mode: "salleA",
-  days: {
-    "2026-06-16": { water: 0, sessions: { maison: {
-      "Squat": { sets:[true,true,true], kg:null },
-      "Pompes": { sets:[true,true,true], kg:null },
-      "Fentes sur place": { sets:[true,true,true], kg:null },
-      "Planche": { sets:[true,false,false], kg:null },
-      "Superman": { sets:[false,false,false], kg:null },
-      "Crunchs inversés": { sets:[false,false,false], kg:null }
-    }}},
-    "2026-06-22": { water: 0, sessions: { maison: {
-      "Squat": { sets:[true,true,false], kg:null },
-      "Pompes": { sets:[true,true,false], kg:null },
-      "Fentes sur place": { sets:[true,false,false], kg:null },
-      "Planche": { sets:[true,false,false], kg:null },
-      "Crunchs inversés": { sets:[true,false,false], kg:null }
-    }}},
-    "2026-07-02": { water: 0, sessions: { maison: {
-      "Squat": { sets:[true,false,false], kg:null },
-      "Pompes": { sets:[true,false,false], kg:null },
-      "Fentes sur place": { sets:[true,false,false], kg:null },
-      "Planche": { sets:[true,false,false], kg:null },
-      "Crunchs inversés": { sets:[true,false,false], kg:null }
-    }}},
-    "2026-07-07": { water: 0, sessions: { salleA: {
-      "Leg Press": { sets:[true,true,true], kg:39 },
-      "Chest Press": { sets:[true,true,true], kg:20 },
-      "Tirage poulie haute": { sets:[true,true,true], kg:25 },
-      "Low Row machine": { sets:[true,true,true], kg:20 },
-      "Planche": { sets:[true,true,true], kg:null }
-    }}},
-    "2026-07-17": { water: 0, sessions: { salleA: {
-      "Leg Press": { sets:[true,true,true], kg:66 },
-      "Leg Curl": { sets:[true,true,true], kg:32 },
-      "Chest Press": { sets:[true,true,true], kg:25 },
-      "Tirage poulie haute": { sets:[true,true,true], kg:32 },
-      "Low Row machine": { sets:[true,true,true], kg:32 },
-      "Élévations latérales haltères": { sets:[true,true,true], kg:4 },
-      "Planche": { sets:[true,true,true], kg:null }
-    }}},
-    "2026-07-15": { water: 0, sessions: { salleB: {
-      "Leg Extension": { sets:[true,true,true], kg:39 },
-      "Presse à mollets (ou debout haltères)": { sets:[true,true,true], kg:10 },
-      "Développé épaules": { sets:[true,true,true], kg:25 },
-      "Tirage poulie haute prise serrée": { sets:[true,true,true], kg:32 },
-      "Curl biceps haltères": { sets:[true,true,true], kg:7 },
-      "Tricep pushdown": { sets:[true,true,true], kg:9 },
-      "Crunch machine": { sets:[true,true,true], kg:23 }
-    }}},
-    "2026-07-13": { water: 0, sessions: { salleA: {
-      "Leg Press": { sets:[true,true,true], kg:45 },
-      "Leg Curl": { sets:[true,true,true], kg:32 },
-      "Chest Press": { sets:[true,true,true], kg:25 },
-      "Tirage poulie haute": { sets:[true,true,true], kg:32 },
-      "Low Row machine": { sets:[true,true,true], kg:32 },
-      "Élévations latérales haltères": { sets:[true,true,false], kg:6 },
-      "Planche": { sets:[true,true,true], kg:null }
-    }}},
-    "2026-07-09": { water: 0, sessions: { salleB: {
-      "Leg Extension": { sets:[true,true,true], kg:32 },
-      "Presse à mollets (ou debout haltères)": { sets:[true,true,true], kg:10 },
-      "Développé épaules": { sets:[true,true,true], kg:27 },
-      "Tirage poulie haute prise serrée": { sets:[true,true,true], kg:25 },
-      "Curl biceps haltères": { sets:[true,true,false], kg:7 },
-      "Tricep pushdown": { sets:[true,true,false], kg:9 },
-      "Crunch machine": { sets:[true,true,true], kg:23 }
-    }}}
-  }
-};
+const SEED = {"mode": "salleA", "days": {"2026-06-16": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, true, true], "kg": null}, "Pompes": {"sets": [true, true, true], "kg": null}, "Fentes sur place": {"sets": [true, true, true], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Superman": {"sets": [false, false, false], "kg": null}, "Crunchs inversés": {"sets": [false, false, false], "kg": null}}}}, "2026-06-22": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, true, false], "kg": null}, "Pompes": {"sets": [true, true, false], "kg": null}, "Fentes sur place": {"sets": [true, false, false], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Crunchs inversés": {"sets": [true, false, false], "kg": null}}}}, "2026-07-02": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, false, false], "kg": null}, "Pompes": {"sets": [true, false, false], "kg": null}, "Fentes sur place": {"sets": [true, false, false], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Crunchs inversés": {"sets": [true, false, false], "kg": null}}}}, "2026-07-07": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 39}, "Chest Press": {"sets": [true, true, true], "kg": 20}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 25}, "Low Row machine": {"sets": [true, true, true], "kg": 20}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-17": {"water": 5, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 4}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-15": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 7}, "Tricep pushdown": {"sets": [true, true, true], "kg": 9}, "Crunch machine": {"sets": [true, true, true], "kg": 23}}}}, "2026-07-13": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 45}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, false], "kg": 6}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-09": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 32}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 27}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 25}, "Curl biceps haltères": {"sets": [true, true, false], "kg": 7}, "Tricep pushdown": {"sets": [true, true, false], "kg": 9}, "Crunch machine": {"sets": [true, true, true], "kg": 23}}}}, "2026-07-20": {"water": 2, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Développé épaules": {"sets": [true, true, true], "kg": 23}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Crunch machine": {"sets": [true, true, true], "kg": 18}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Curl biceps haltères": {"sets": [true, true, false], "kg": 7}}}}, "2026-07-21": {"water": 0, "sessions": {}}, "2026-07-22": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 4}, "Planche": {"sets": [true, true, true], "kg": null}, "Low Row machine": {"sets": [true, true, true], "kg": 32}}}}, "2026-07-23": {"water": 0, "sessions": {}}, "2026-07-24": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 23}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 7}, "Crunch machine": {"sets": [true, true, false], "kg": null}}}}, "2026-07-27": {"water": 4, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 5}, "Planche": {"sets": [true, true, true], "kg": null}}}}}};
 async function loadDB(){
   let loaded = false;
   try {
@@ -320,7 +302,7 @@ function renderChips(){
   ).join("");
 }
 function sess(){ const t = day(); if(!t.sessions[mode]) t.sessions[mode] = {}; return t.sessions[mode]; }
-function exoState(n){ const s = sess(); if(!s[n]) s[n] = { sets:[false,false,false], kg:null }; return s[n]; }
+function exoState(n){ const s = sess(); if(!s[n]) s[n] = { sets:[false,false,false], kg:null, easy:false, sub:null }; return s[n]; }
 
 function toggleSet(n, i){
   const e = exoState(n);
@@ -332,11 +314,31 @@ function setKg(n, v){
   e.kg = v === "" ? null : parseFloat(v);
   save();
 }
-function lastKg(exoName){
+function toggleEasy(n){
+  const e = exoState(n);
+  e.easy = !e.easy;
+  save(); renderExos();
+}
+function setSub(n, v){
+  const e = exoState(n);
+  e.sub = v || null;
+  save(); renderExos();
+}
+function qForExo(exo, effName){
+  if(effName === exo.n) return exo.q;
+  const a = (exo.alts||[]).find(x => x.n === effName);
+  return a ? a.q : exo.q;
+}
+// Dernier poids pour un exercice donné (par nom effectif : prévu OU substitut)
+function lastKgByEff(effName){
   const keys = Object.keys(db.days).filter(k => k !== todayKey()).sort().reverse();
   for(const k of keys){
     const s = db.days[k].sessions && db.days[k].sessions[mode];
-    if(s && s[exoName] && s[exoName].kg != null) return { kg: s[exoName].kg, date: k };
+    if(!s) continue;
+    for(const slot of Object.keys(s)){
+      const e = s[slot]; const eff = e.sub || slot;
+      if(eff === effName && e.kg != null) return { kg:e.kg, date:k, easy:!!e.easy };
+    }
   }
   return null;
 }
@@ -344,26 +346,54 @@ function renderExos(){
   const list = PROGRAMS[mode].exos;
   const s = day().sessions[mode] || {};
   document.getElementById("exoList").innerHTML = list.map(exo => {
-    const st = s[exo.n] || { sets:[false,false,false], kg:null };
-    const last = exo.kg ? lastKg(exo.n) : null;
+    const st = Object.assign({ sets:[false,false,false], kg:null, easy:false, sub:null }, s[exo.n] || {});
+    const sn = exo.n.replace(/'/g,"\\'");
+    const effName = st.sub || exo.n;
+    const inc = exo.inc || 2.5;
+    const last = exo.kg ? lastKgByEff(effName) : null;
+    const suggested = (last && last.easy && last.kg != null) ? Math.round((last.kg + inc)*10)/10 : null;
+
     const plates = [0,1,2].map(i =>
-      `<button class="plate ${st.sets[i]?'done':''}" onclick="toggleSet('${exo.n.replace(/'/g,"\\'")}',${i})">${st.sets[i]?'✓':i+1}</button>`
+      `<button class="plate ${st.sets[i]?'done':''}" onclick="toggleSet('${sn}',${i})">${st.sets[i]?'✓':i+1}</button>`
     ).join("");
+
+    const ph = suggested != null ? suggested : (last ? last.kg : '—');
     const kgInput = exo.kg ? `<div class="kgrow">
       <label>Charge</label>
       <input class="kg" type="number" inputmode="decimal" step="0.5" min="0"
         value="${st.kg != null ? st.kg : ''}"
-        placeholder="${last ? last.kg : '—'}"
-        onchange="setKg('${exo.n.replace(/'/g,"\\'")}', this.value)">
+        placeholder="${ph}"
+        onchange="setKg('${sn}', this.value)">
       <span class="kgu">kg</span>
     </div>` : "";
-    const lastTxt = last ? `<div class="last">Dernier : <b>${last.kg} kg</b></div>` : "";
-    const photoBtn = exo.q ? `<a class="photo" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(exo.q)}" target="_blank" rel="noopener">📷 Voir la machine</a>` : "";
+
+    const subNote = st.sub ? `<div class="subnote">↔ remplace « ${exo.n} »</div>` : "";
+    let lastTxt = "";
+    if(last){
+      lastTxt = `<div class="last">Dernier : <b>${String(last.kg).replace('.',',')} kg</b>${last.easy ? ' <span class="ez">⚡ facile</span>' : ''}</div>`;
+    }
+    const sugTxt = suggested != null
+      ? `<div class="sug">⚡ Facile la dernière fois → essaie <b>${String(suggested).replace('.',',')} kg</b> aujourd'hui</div>`
+      : "";
+
+    const easyPill = `<button class="ezbtn ${st.easy?'on':''}" onclick="toggleEasy('${sn}')">${st.easy ? '⚡ Facile ✓' : "⚡ C'était facile"}</button>`;
+    const photoBtn = `<a class="photo" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(qForExo(exo, effName))}" target="_blank" rel="noopener">📷 Voir la machine</a>`;
+
+    let subSel = "";
+    if(exo.alts && exo.alts.length){
+      const opts = `<option value="" ${!st.sub?'selected':''}>▶ ${exo.n} (prévu)</option>` +
+        exo.alts.map(a => `<option value="${a.n}" ${st.sub===a.n?'selected':''}>↔ ${a.n}</option>`).join("");
+      subSel = `<select class="sub" onchange="setSub('${sn}', this.value)">${opts}</select>`;
+    }
+
     return `<div class="exo">
       <div class="top">
-        <div><div class="nm">${exo.n}</div><div class="tg">${exo.t}</div>${lastTxt}</div>
+        <div><div class="nm">${effName}</div><div class="tg">${exo.t}</div>${subNote}${lastTxt}${sugTxt}</div>
         <div class="plates">${plates}</div>
-      </div>${kgInput}${photoBtn}
+      </div>
+      ${kgInput}
+      <div class="exo-actions">${easyPill}${photoBtn}</div>
+      ${subSel}
     </div>`;
   }).join("");
 }
@@ -393,18 +423,20 @@ function renderHistory(){
     const L = ((d.water||0)*GLASS/1000).toFixed(2).replace(".",",");
     const modesDone = Object.keys(d.sessions||{}).filter(m => hasSets(d.sessions[m]) && PROGRAMS[m]);
     const sessions = modesDone.map(m => {
-      const rows = Object.keys(d.sessions[m]).map(exoN => {
-        const e = d.sessions[m][exoN];
+      const rows = Object.keys(d.sessions[m]).map(slot => {
+        const e = d.sessions[m][slot];
         const c = (e.sets||[]).filter(Boolean).length;
         if(c === 0 && e.kg == null) return "";
-        const prev = prevKgBefore(m, exoN, k);
+        const eff = e.sub || slot;
+        const prev = prevKgByEffBefore(m, eff, k);
         let delta = "";
         if(e.kg != null && prev != null){
-          const diff = e.kg - prev;
-          if(diff > 0) delta = `<span class="d up">▲ +${diff}</span>`;
-          else if(diff < 0) delta = `<span class="d dn">▼ ${diff}</span>`;
+          const diff = Math.round((e.kg - prev)*10)/10;
+          if(diff > 0) delta = `<span class="d up">▲ +${String(diff).replace('.',',')}</span>`;
+          else if(diff < 0) delta = `<span class="d dn">▼ ${String(diff).replace('.',',')}</span>`;
         }
-        return `<div class="hex"><span>${exoN} · ${c}/3</span><span>${e.kg != null ? `<span class="w">${e.kg} kg</span>${delta}` : ""}</span></div>`;
+        const tags = `${e.sub ? ' <span class="hsub">↔</span>' : ''}${e.easy ? ' <span class="hz">⚡</span>' : ''}`;
+        return `<div class="hex"><span>${eff} · ${c}/3${tags}</span><span>${e.kg != null ? `<span class="w">${String(e.kg).replace('.',',')} kg</span>${delta}` : ""}</span></div>`;
       }).join("");
       const total = Object.values(d.sessions[m]).reduce((a,e)=>a+(e.sets||[]).filter(Boolean).length,0);
       const target = PROGRAMS[m].exos.length*3;
@@ -417,11 +449,15 @@ function renderHistory(){
   }).join("");
 }
 function hasSets(s){ return Object.values(s||{}).some(e => (e.sets||[]).some(Boolean) || e.kg != null); }
-function prevKgBefore(m, exoN, beforeKey){
+function prevKgByEffBefore(m, effName, beforeKey){
   const keys = Object.keys(db.days).filter(k => k < beforeKey).sort().reverse();
   for(const k of keys){
     const s = db.days[k].sessions && db.days[k].sessions[m];
-    if(s && s[exoN] && s[exoN].kg != null) return s[exoN].kg;
+    if(!s) continue;
+    for(const slot of Object.keys(s)){
+      const e = s[slot]; const eff = e.sub || slot;
+      if(eff === effName && e.kg != null) return e.kg;
+    }
   }
   return null;
 }
