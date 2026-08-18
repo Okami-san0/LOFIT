@@ -2,182 +2,306 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#101418">
-<title>LoFit — Suivi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0710">
+<title>LoFit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rowdies:wght@300;700&family=Rubik:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#101418; --surface:#1A2026; --surface2:#222A32; --line:#2C353F;
-  --txt:#F2F0EC; --muted:#8B939C; --dim:#5A636D;
-  --fire:#FF5C39; --fire-dim:#8C3A28; --aqua:#4CC3FF; --ok:#3DDC84;
+  --ink:#0B0710;
+  --panel:#150E1C;
+  --panel2:#1E1428;
+  --rule:#302239;
+  --white:#F6EFF8;
+  --dim:#9A8BA6;
+  --faint:#66566F;
+  --pink:#FF2E92;
+  --pink-soft:#FF87C4;
+  --violet:#A855F7;
+  --glow:rgba(255,46,146,.55);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--txt);font-family:'Barlow',system-ui,sans-serif;font-size:15px;min-height:100vh;padding-bottom:84px}
-h1,h2,.disp{font-family:'Barlow Condensed',sans-serif;letter-spacing:.02em}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);color:var(--white);
+  font-family:'Rubik',system-ui,sans-serif;font-size:15px;line-height:1.45;
+  padding-bottom:96px;
+}
+.mono{font-family:'DM Mono',monospace;font-variant-numeric:tabular-nums}
 
-/* ---- header ---- */
-header{padding:20px 18px 14px;border-bottom:1px solid var(--line)}
-.brand{font-family:'Barlow Condensed';font-weight:800;font-size:15px;letter-spacing:.28em;color:var(--fire);text-transform:uppercase}
-.day{font-family:'Barlow Condensed';font-weight:800;font-size:34px;line-height:1;text-transform:capitalize;margin-top:4px}
-.daysub{color:var(--muted);font-size:13px;margin-top:2px}
+/* ---------- en-tête : capuche dentelée ---------- */
+header{
+  position:relative;padding:20px 18px 22px;
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(168,85,247,.20) 0%, transparent 60%),
+    linear-gradient(180deg,#1A0F22 0%,var(--ink) 100%);
+}
+header::after{
+  content:"";position:absolute;left:0;right:0;bottom:-11px;height:12px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='12' viewBox='0 0 20 12'%3E%3Cpath d='M0 0 L10 12 L20 0 Z' fill='%23FF2E92'/%3E%3C/svg%3E") repeat-x;
+  filter:drop-shadow(0 0 8px var(--glow));
+}
+.mark{
+  font-family:'Rowdies',cursive;font-weight:700;font-size:34px;line-height:1;
+  letter-spacing:.02em;color:var(--pink);
+  text-shadow:0 0 20px var(--glow),0 0 46px rgba(255,46,146,.3);
+}
+.mark span{color:var(--white);text-shadow:0 0 14px rgba(246,239,248,.35)}
+.mark i{font-style:normal;color:var(--violet);font-size:20px;vertical-align:super;text-shadow:0 0 14px rgba(168,85,247,.6)}
+.today{
+  font-family:'Rowdies',cursive;font-weight:300;font-size:15px;
+  color:var(--white);margin-top:10px;text-transform:capitalize;letter-spacing:.02em;
+}
+.sub{color:var(--faint);font-size:12px;margin-top:2px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.saved{color:var(--pink);font-size:11px;font-weight:600;opacity:0;transition:opacity .3s}
 
-/* ---- tabs bottom ---- */
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--surface);border-top:1px solid var(--line);z-index:10}
-nav button{flex:1;padding:13px 4px max(13px, env(safe-area-inset-bottom));background:none;border:none;color:var(--dim);font-family:'Barlow Condensed';font-weight:600;font-size:15px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
-nav button.on{color:var(--fire)}
-nav button .ic{display:block;font-size:18px;margin-bottom:2px}
+/* ---------- nav ---------- */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;background:#100A16;border-top:1px solid var(--rule)}
+nav button{
+  flex:1;padding:13px 4px calc(13px + env(safe-area-inset-bottom));
+  background:none;border:none;border-top:2px solid transparent;margin-top:-1px;cursor:pointer;
+  color:var(--faint);font-family:'Rowdies',cursive;font-weight:300;font-size:14px;letter-spacing:.04em;
+}
+nav button.on{color:var(--pink);border-top-color:var(--pink);text-shadow:0 0 12px var(--glow)}
+nav button:focus-visible{outline:2px solid var(--pink);outline-offset:-4px}
 
-main{padding:18px}
-.view{display:none}.view.on{display:block}
+main{padding:18px 16px}
+.view{display:none}
+.view.on{display:block}
 
-/* ---- eau ---- */
-.water{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px}
-.water .row{display:flex;justify-content:space-between;align-items:baseline}
-.water .lbl{font-family:'Barlow Condensed';font-weight:600;font-size:17px;letter-spacing:.05em;text-transform:uppercase;color:var(--aqua)}
-.water .val{font-weight:600;color:var(--txt)}
-.wbar{height:8px;background:var(--surface2);border-radius:4px;margin:12px 0;overflow:hidden}
-.wfill{height:100%;background:var(--aqua);border-radius:4px;transition:width .25s;width:0}
-.wctl{display:flex;align-items:center;justify-content:center;gap:20px}
-.wbtn{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--surface2);color:var(--aqua);font-size:24px;font-weight:600;cursor:pointer}
-.wbtn.plus{background:var(--aqua);color:var(--bg);border:none}
-.wcnt{font-size:14px;color:var(--muted)}
+/* ---------- jauge eau ---------- */
+.gauge{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:15px 16px;margin-bottom:15px}
+.gauge-hd{display:flex;justify-content:space-between;align-items:baseline}
+.gauge-lb{font-family:'Rowdies',cursive;font-weight:300;font-size:15px;color:var(--pink-soft)}
+.gauge-val{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums}
+.gauge-track{height:10px;background:#0C0810;border:1px solid var(--rule);border-radius:6px;margin:12px 0 6px;overflow:hidden}
+.gauge-fill{height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--pink));box-shadow:0 0 12px var(--glow);transition:width .3s ease;border-radius:6px}
+.gauge-ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint)}
+.gauge-ctl{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:13px}
+.gbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--rule);background:var(--panel2);color:var(--white);font-size:22px;line-height:1;cursor:pointer}
+.gbtn.add{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:700;box-shadow:0 0 16px var(--glow)}
+.gbtn:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.gauge-cnt{font-family:'DM Mono',monospace;font-size:12px;color:var(--dim)}
 
-/* ---- mode chips ---- */
-.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.chip{padding:12px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:16px;letter-spacing:.04em;cursor:pointer;text-align:center}
-.chip.on{border-color:var(--fire);color:var(--fire);background:rgba(255,92,57,.08)}
+/* ---------- sélecteur ---------- */
+.picker{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:15px}
+.pick{
+  padding:12px 11px;border-radius:12px;border:1px solid var(--rule);background:var(--panel);
+  cursor:pointer;text-align:left;color:var(--dim);
+  font-family:'Rowdies',cursive;font-weight:300;font-size:15px;
+}
+.pick.on{border-color:var(--pink);color:var(--pink);background:#22101C;box-shadow:0 0 20px -6px var(--glow)}
+.pick:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.pick.wide{grid-column:1 / -1}
 
-/* ---- exo cards ---- */
-.exo{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
-.exo .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.exo .nm{font-weight:600;font-size:15px}
-.exo .tg{color:var(--dim);font-size:12.5px;margin-top:1px}
-.exo .last{color:var(--muted);font-size:12px;margin-top:2px}
-.exo .last b{color:var(--ok);font-weight:600}
-.plates{display:flex;gap:8px}
-.plate{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);background:var(--surface2);color:var(--dim);font-family:'Barlow Condensed';font-weight:800;font-size:15px;cursor:pointer;flex-shrink:0}
-.plate.done{border-color:var(--fire);background:var(--fire);color:var(--bg)}
-.kgrow{display:flex;align-items:center;gap:8px;margin-top:11px}
-.kgrow label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:'Barlow Condensed';font-weight:600}
-.kg{width:76px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--txt);font-family:'Barlow';font-size:15px;font-weight:600;text-align:center}
-.kg:focus{outline:none;border-color:var(--fire)}
-.kgu{color:var(--dim);font-size:13px}
-.photo{display:inline-block;margin-top:10px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--aqua);font-size:12.5px;font-weight:600;text-decoration:none}
-.exo-actions{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
-.exo-actions .photo{margin-top:0}
-.ezbtn{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--muted);font-family:'Barlow';font-size:12.5px;font-weight:600;cursor:pointer}
-.ezbtn.on{border-color:var(--fire);background:var(--fire);color:var(--bg)}
-.sug{color:var(--fire);font-size:12px;font-weight:600;margin-top:3px}
-.sug b{font-weight:800}
-.ez{color:var(--fire);font-size:11px;font-weight:700}
-.subnote{color:var(--aqua);font-size:11.5px;font-style:italic;margin-top:2px}
-.sub{width:100%;margin-top:10px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--txt);font-family:'Barlow';font-size:13px;font-weight:500}
-.sub:focus{outline:none;border-color:var(--aqua)}
-.hex .hz{font-size:11px}
-.hex .hsub{color:var(--aqua);font-size:11px}
+/* ---------- cardio ---------- */
+.cardio{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:15px;margin-bottom:11px}
+.cardio-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:11px}
+.cardio-ttl{font-family:'Rowdies',cursive;font-weight:700;font-size:19px;color:var(--white)}
+.cardio-meta{font-size:11.5px;color:var(--faint);margin-top:2px}
+.cardio-cnt{font-family:'DM Mono',monospace;font-size:12px;color:var(--pink);white-space:nowrap}
+.profile{width:100%;height:auto;display:block;margin-bottom:12px}
+.blk-hd{
+  display:grid;grid-template-columns:56px 42px 1fr 62px;gap:8px;align-items:center;
+  padding:0 6px 5px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  border-bottom:1px solid var(--rule);
+}
+.blk{
+  display:grid;grid-template-columns:56px 42px 1fr 62px;gap:8px;align-items:center;
+  width:100%;padding:10px 6px;border:none;border-bottom:1px solid #221730;
+  background:none;cursor:pointer;text-align:left;color:var(--white);
+  font-family:'DM Mono',monospace;font-size:12.5px;
+}
+.blk:last-child{border-bottom:none}
+.blk.done{background:#1E0F1B;border-radius:8px}
+.blk.done .b-t{color:var(--pink)}
+.blk .b-d{color:var(--faint);font-size:11px}
+.blk .b-i{display:flex;align-items:center;gap:7px;color:var(--dim)}
+.blk .b-bar{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--violet),var(--pink));flex-shrink:0;min-width:3px}
+.blk.done .b-bar{box-shadow:0 0 10px var(--glow)}
+.blk .b-v{text-align:right;font-weight:500}
+.blk:focus-visible{outline:2px solid var(--pink);outline-offset:-2px}
+.cardio-tip{margin-top:10px;padding:9px 11px;border-radius:9px;background:#1B1024;border-left:2px solid var(--violet);font-size:12px;color:var(--pink-soft)}
 
-/* ---- historique ---- */
-.hday{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
-.hday .hd{display:flex;justify-content:space-between;align-items:baseline}
-.hday .dt{font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:capitalize}
-.hday .hw{color:var(--aqua);font-size:13px;font-weight:600}
-.hsess{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
-.hsess .sn{font-family:'Barlow Condensed';font-weight:600;font-size:15px;color:var(--fire);letter-spacing:.04em}
-.hex{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:3px 0}
-.hex .w{color:var(--txt);font-weight:600}
-.hex .d{font-size:11px;margin-left:6px}
-.hex .up{color:var(--ok)}.hex .dn{color:var(--fire)}
-.empty{text-align:center;color:var(--dim);padding:40px 20px;font-size:14px;line-height:1.6}
-.hnone{color:var(--dim);font-size:13px;font-style:italic;margin-top:6px}
+/* ---------- exercices ---------- */
+.exo{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:15px;margin-bottom:10px}
+.exo-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.exo-nm{font-family:'Rowdies',cursive;font-weight:300;font-size:18px;line-height:1.2}
+.exo-tg{font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);margin-top:3px}
+.exo-last{font-size:12px;color:var(--dim);margin-top:4px}
+.exo-last b{font-family:'DM Mono',monospace;color:var(--white);font-weight:500}
+.flag{
+  display:inline-block;margin-top:6px;padding:4px 10px;border-radius:20px;
+  background:#2A1024;border:1px solid var(--pink);
+  font-size:11.5px;font-weight:500;color:var(--pink-soft);
+}
+.flag b{font-family:'DM Mono',monospace;color:var(--pink)}
+.sets{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:150px}
+.set{
+  width:36px;height:36px;border-radius:50%;cursor:pointer;
+  border:1px solid var(--rule);background:var(--panel2);color:var(--faint);
+  font-family:'Rowdies',cursive;font-weight:700;font-size:14px;
+}
+.set.done{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 0 14px var(--glow)}
+.set:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.load{display:flex;align-items:center;gap:9px;margin-top:12px}
+.load label{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.load input{
+  width:80px;padding:8px 10px;border-radius:9px;border:1px solid var(--rule);
+  background:#0D0812;color:var(--white);
+  font-family:'DM Mono',monospace;font-size:15px;font-weight:500;text-align:center;
+}
+.load input:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 1px var(--pink),0 0 16px -4px var(--glow)}
+.load .unit{font-family:'DM Mono',monospace;font-size:13px;color:var(--faint)}
+.tools{display:flex;gap:7px;align-items:center;margin-top:11px;flex-wrap:wrap}
+.tool{
+  padding:7px 13px;border-radius:20px;border:1px solid var(--rule);background:var(--panel2);
+  color:var(--dim);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;font-family:'Rubik',sans-serif;
+}
+.tool.on{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 0 14px var(--glow)}
+.tool:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.swap{
+  width:100%;margin-top:10px;padding:10px;border-radius:9px;
+  border:1px solid var(--rule);background:var(--panel2);color:var(--white);
+  font-family:'Rubik',sans-serif;font-size:13px;
+}
+.swap:focus{outline:none;border-color:var(--pink)}
+.swapped{font-size:11.5px;color:var(--pink-soft);margin-top:3px;font-style:italic}
 
-/* ---- réglages ---- */
-.set-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
-.set-card h2{font-size:18px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
-.set-card p{color:var(--muted);font-size:13.5px;line-height:1.55;margin-bottom:10px}
-.abtn{display:block;width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--txt);font-family:'Barlow';font-weight:600;font-size:14px;cursor:pointer;margin-top:8px}
-.abtn.danger{color:var(--fire);border-color:var(--fire-dim)}
-textarea{width:100%;min-height:110px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:11px;padding:10px;font-family:monospace;margin-top:8px}
-.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--txt);color:var(--bg);padding:10px 18px;border-radius:20px;font-weight:600;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20}
+/* ---------- historique ---------- */
+.stats{display:flex;gap:8px;margin-bottom:15px}
+.stat{flex:1;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:13px 8px;text-align:center}
+.stat-n{font-family:'Rowdies',cursive;font-weight:700;font-size:27px;line-height:1;color:var(--pink);text-shadow:0 0 16px var(--glow)}
+.stat-l{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:4px}
+.entry{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:14px;margin-bottom:9px}
+.entry-hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.entry-dt{font-family:'Rowdies',cursive;font-weight:300;font-size:16px;text-transform:capitalize}
+.entry-w{font-family:'DM Mono',monospace;font-size:12px;color:var(--violet)}
+.entry-s{margin-top:9px;padding-top:9px;border-top:1px solid var(--rule)}
+.entry-sn{font-family:'Rowdies',cursive;font-weight:300;font-size:14px;color:var(--pink)}
+.line{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--dim);padding:3px 0}
+.line .v{font-family:'DM Mono',monospace;color:var(--white);font-weight:500}
+.line .up{color:var(--pink);font-size:11px;margin-left:5px;font-family:'DM Mono',monospace}
+.line .dn{color:var(--faint);font-size:11px;margin-left:5px;font-family:'DM Mono',monospace}
+.blank{color:var(--faint);font-size:12.5px;font-style:italic;margin-top:6px}
+.empty{text-align:center;color:var(--faint);padding:44px 22px;font-size:14px;line-height:1.6}
+
+/* ---------- réglages ---------- */
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:16px;margin-bottom:11px}
+.card h2{font-family:'Rowdies',cursive;font-weight:700;font-size:17px;margin-bottom:7px;color:var(--pink-soft)}
+.card p{color:var(--dim);font-size:13px;line-height:1.55;margin-bottom:9px}
+.act{
+  display:block;width:100%;padding:12px;border-radius:10px;margin-top:8px;cursor:pointer;
+  border:1px solid var(--rule);background:var(--panel2);color:var(--white);
+  font-family:'Rubik',sans-serif;font-size:13.5px;font-weight:500;
+}
+.act.warn{color:var(--pink);border-color:#5C1D3D}
+.act:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+textarea{
+  width:100%;min-height:104px;margin-top:8px;padding:10px;border-radius:10px;
+  border:1px solid var(--rule);background:#0D0812;color:var(--dim);
+  font-family:'DM Mono',monospace;font-size:10.5px;
+}
+.toast{
+  position:fixed;left:50%;bottom:108px;transform:translateX(-50%);z-index:30;
+  background:var(--pink);color:#fff;padding:11px 20px;border-radius:22px;
+  font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;
+  max-width:88vw;text-align:center;box-shadow:0 0 24px -4px var(--glow);
+}
 .toast.show{opacity:1}
-.stat{display:flex;gap:8px;margin-bottom:18px}
-.stat .s{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
-.stat .n{font-family:'Barlow Condensed';font-weight:800;font-size:26px;color:var(--fire)}
-.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand">LoFit · Sec &amp; Musclé</div>
-  <div class="day" id="dayName">—</div>
-  <div class="daysub" id="daySub">Objectif : 3 séances / sem · 3 L d'eau / jour <span id="saveDot" style="color:var(--ok);opacity:0;transition:opacity .3s">● sauvegardé</span></div>
+  <div class="mark">Lo<span>Fit</span><i>✦</i></div>
+  <div class="today" id="today">—</div>
+  <div class="sub"><span id="subline">Salle A</span><span class="saved" id="saved">✓ enregistré</span></div>
 </header>
 
 <main>
 
-<!-- ============ AUJOURD'HUI ============ -->
 <section class="view on" id="v-today">
-
-  <div class="water">
-    <div class="row"><span class="lbl">💧 Hydratation</span><span class="val" id="wVal">0 L / 3 L</span></div>
-    <div class="wbar"><div class="wfill" id="wFill"></div></div>
-    <div class="wctl">
-      <button class="wbtn" onclick="water(-1)">−</button>
-      <span class="wcnt" id="wCnt">0 verre (250 mL)</span>
-      <button class="wbtn plus" onclick="water(1)">+</button>
+  <div class="gauge">
+    <div class="gauge-hd">
+      <span class="gauge-lb">Hydratation</span>
+      <span class="gauge-val" id="wVal">0,00 L</span>
+    </div>
+    <div class="gauge-track"><div class="gauge-fill" id="wFill"></div></div>
+    <div class="gauge-ticks"><span>0</span><span>1,5 L</span><span>3 L</span></div>
+    <div class="gauge-ctl">
+      <button class="gbtn" onclick="water(-1)" aria-label="Retirer un verre">−</button>
+      <span class="gauge-cnt" id="wCnt">0 verre</span>
+      <button class="gbtn add" onclick="water(1)" aria-label="Ajouter un verre">+</button>
     </div>
   </div>
-
-  <div class="chips" id="chips"></div>
-  <div id="exoList"></div>
-
+  <div class="picker" id="picker"></div>
+  <div id="board"></div>
 </section>
 
-<!-- ============ HISTORIQUE ============ -->
 <section class="view" id="v-history">
-  <div class="stat">
-    <div class="s"><div class="n" id="stDays">0</div><div class="l">jours suivis</div></div>
-    <div class="s"><div class="n" id="stSess">0</div><div class="l">séances</div></div>
-    <div class="s"><div class="n" id="stWeek">0</div><div class="l">cette semaine</div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="stSess">0</div><div class="stat-l">Séances</div></div>
+    <div class="stat"><div class="stat-n" id="stWeek">0</div><div class="stat-l">7 jours</div></div>
+    <div class="stat"><div class="stat-n" id="stDays">0</div><div class="stat-l">Jours</div></div>
   </div>
   <div id="histList"></div>
 </section>
 
-<!-- ============ RÉGLAGES ============ -->
 <section class="view" id="v-settings">
-  <div class="set-card">
+  <div class="card">
     <h2>Sauvegarde</h2>
-    <p>Tes données sont sauvegardées dans le navigateur de ce téléphone (site web réel = stockage fiable). Attention : effacer les données de navigation de Chrome les supprime. Exporte une copie de secours de temps en temps.</p>
-    <button class="abtn" onclick="exportData()">Copier mes données (export)</button>
-    <textarea id="ioBox" placeholder="L'export apparaît ici. Pour importer : colle une sauvegarde puis touche Importer."></textarea>
-    <button class="abtn" onclick="importData()">Importer depuis la zone ci-dessus</button>
+    <p>Tes données vivent dans le navigateur de ce téléphone. Effacer les données de navigation les supprime — copie l'export dans une note de temps en temps.</p>
+    <button class="act" onclick="exportData()">Copier mes données</button>
+    <textarea id="ioBox" placeholder="L'export s'affiche ici. Pour restaurer : colle une sauvegarde, puis touche Importer."></textarea>
+    <button class="act" onclick="importData()">Importer depuis la zone ci-dessus</button>
   </div>
-  <div class="set-card">
-    <h2>Faire évoluer l'app</h2>
-    <p>Pour ajouter des exercices, changer les objectifs ou de nouvelles fonctions : renvoie ce fichier à Claude avec ta demande. Exporte tes données avant, réimporte-les après si besoin.</p>
+  <div class="card">
+    <h2>Faire évoluer</h2>
+    <p>Exercices, charges et blocs de cardio se modifient en haut du fichier index.html, dans le bloc PROGRAMS. Remplacer le fichier sur GitHub ne touche pas aux données enregistrées.</p>
   </div>
-  <div class="set-card">
-    <h2>Zone dangereuse</h2>
-    <button class="abtn danger" onclick="wipe()">Effacer toutes les données</button>
+  <div class="card">
+    <h2>Remise à zéro</h2>
+    <button class="act warn" onclick="wipe()">Effacer toutes les données</button>
   </div>
 </section>
 
 </main>
 
 <nav>
-  <button class="on" onclick="tab('today',this)"><span class="ic">☑️</span>Aujourd'hui</button>
-  <button onclick="tab('history',this)"><span class="ic">📊</span>Historique</button>
-  <button onclick="tab('settings',this)"><span class="ic">⚙️</span>Réglages</button>
+  <button class="on" onclick="tab('today',this)">Aujourd'hui</button>
+  <button onclick="tab('history',this)">Historique</button>
+  <button onclick="tab('settings',this)">Réglages</button>
 </nav>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
-/* ================= PROGRAMMES ================= */
+/* =======================================================================
+   PROGRAMMES
+   cardio.blocks : from / to en minutes, incline en %, speed en km/h
+   inc  : incrément suggéré quand la série passe sans forcer
+   alts : machines de remplacement si l'appareil est occupé
+   ======================================================================= */
 const PROGRAMS = {
-  salleA: { label: "🏋️ Salle A", exos: [
+  salleA: {
+    label: "Salle A",
+    cardio: {
+      total: "15 min · récup active",
+      tip: "Après les jambes : buste droit, ne t'agrippe pas aux barres — s'appuyer met le bas du dos en flexion.",
+      blocks: [
+        {from:0,  to:3,  incline:3, speed:5},
+        {from:3,  to:6,  incline:6, speed:5.5},
+        {from:6,  to:9,  incline:8, speed:5.5},
+        {from:9,  to:12, incline:6, speed:5.5},
+        {from:12, to:15, incline:3, speed:4.5}
+      ]
+    },
+    exos: [
     { n: "Leg Press", t: "3 × 12", kg: true, inc: 5, q: "leg press machine salle sport", alts:[
       { n:"Hack Squat", q:"hack squat machine" },
       { n:"Presse à cuisses horizontale", q:"presse horizontale jambes machine" },
@@ -204,7 +328,21 @@ const PROGRAMS = {
       { n:"Gainage bras tendus", q:"gainage bras tendus planche haute" },
       { n:"Gainage latéral", q:"gainage latéral position" } ]},
   ]},
-  salleB: { label: "🏋️ Salle B", exos: [
+  salleB: {
+    label: "Salle B",
+    cardio: {
+      total: "15 min · protocole complet",
+      tip: "Jambes fraîches : c'est ici que tu peux pousser. Buste droit, mains libres. Si le dos tire, baisse la pente plutôt que d'arrêter.",
+      blocks: [
+        {from:0,  to:3,  incline:5,  speed:5},
+        {from:3,  to:6,  incline:8,  speed:5.5},
+        {from:6,  to:9,  incline:10, speed:5.5},
+        {from:9,  to:11, incline:12, speed:5},
+        {from:11, to:13, incline:8,  speed:6},
+        {from:13, to:15, incline:3,  speed:4.5}
+      ]
+    },
+    exos: [
     { n: "Leg Extension", t: "3 × 12", kg: true, inc: 3, q: "leg extension machine quadriceps", alts:[
       { n:"Presse à cuisses", q:"leg press machine salle sport" },
       { n:"Hack Squat", q:"hack squat machine" },
@@ -234,7 +372,9 @@ const PROGRAMS = {
       { n:"Crunch au sol", q:"crunch abdominaux sol" },
       { n:"Gainage planche", q:"planche gainage position" } ]},
   ]},
-  maison: { label: "🏠 Maison (dépannage)", exos: [
+  maison: {
+    label: "Maison (dépannage)",
+    exos: [
     { n: "Squat", t: "3 × 15", kg: false, q: "squat poids du corps position", alts:[] },
     { n: "Pompes", t: "3 × max", kg: false, q: "pompes position correcte", alts:[] },
     { n: "Fentes sur place", t: "3 × 10/jambe", kg: false, q: "fentes exercice position", alts:[] },
@@ -243,42 +383,71 @@ const PROGRAMS = {
     { n: "Crunchs inversés", t: "3 × 15", kg: false, q: "crunch inversé exercice abdos", alts:[] },
   ]},
 };
-const WATER_GOAL = 3000, GLASS = 250;
-const KEY = "lofit.v1";
 
-/* ================= DONNÉES (stockage Claude persistant) ================= */
-let db = { days:{}, mode: null };
-let saveTimer = null;
-const SEED = {"mode": "salleA", "days": {"2026-06-16": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, true, true], "kg": null}, "Pompes": {"sets": [true, true, true], "kg": null}, "Fentes sur place": {"sets": [true, true, true], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Superman": {"sets": [false, false, false], "kg": null}, "Crunchs inversés": {"sets": [false, false, false], "kg": null}}}}, "2026-06-22": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, true, false], "kg": null}, "Pompes": {"sets": [true, true, false], "kg": null}, "Fentes sur place": {"sets": [true, false, false], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Crunchs inversés": {"sets": [true, false, false], "kg": null}}}}, "2026-07-02": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, false, false], "kg": null}, "Pompes": {"sets": [true, false, false], "kg": null}, "Fentes sur place": {"sets": [true, false, false], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Crunchs inversés": {"sets": [true, false, false], "kg": null}}}}, "2026-07-07": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 39}, "Chest Press": {"sets": [true, true, true], "kg": 20}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 25}, "Low Row machine": {"sets": [true, true, true], "kg": 20}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-17": {"water": 5, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 4}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-15": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 7}, "Tricep pushdown": {"sets": [true, true, true], "kg": 9}, "Crunch machine": {"sets": [true, true, true], "kg": 23}}}}, "2026-07-13": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 45}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, false], "kg": 6}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-09": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 32}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 27}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 25}, "Curl biceps haltères": {"sets": [true, true, false], "kg": 7}, "Tricep pushdown": {"sets": [true, true, false], "kg": 9}, "Crunch machine": {"sets": [true, true, true], "kg": 23}}}}, "2026-07-20": {"water": 2, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Développé épaules": {"sets": [true, true, true], "kg": 23}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Crunch machine": {"sets": [true, true, true], "kg": 18}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Curl biceps haltères": {"sets": [true, true, false], "kg": 7}}}}, "2026-07-21": {"water": 0, "sessions": {}}, "2026-07-22": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 4}, "Planche": {"sets": [true, true, true], "kg": null}, "Low Row machine": {"sets": [true, true, true], "kg": 32}}}}, "2026-07-23": {"water": 0, "sessions": {}}, "2026-07-24": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 23}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 7}, "Crunch machine": {"sets": [true, true, false], "kg": null}}}}, "2026-07-27": {"water": 4, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 5}, "Planche": {"sets": [true, true, true], "kg": null}}}}}};
-async function loadDB(){
+const WATER_GOAL = 3000, GLASS = 250, KEY = "lofit-db";
+
+/* ================= DONNÉES ================= */
+let db = { days:{}, mode:null };
+let mode = "salleA";
+const SEED = {"mode": "salleA", "days": {"2026-06-16": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, true, true], "kg": null}, "Pompes": {"sets": [true, true, true], "kg": null}, "Fentes sur place": {"sets": [true, true, true], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Superman": {"sets": [false, false, false], "kg": null}, "Crunchs inversés": {"sets": [false, false, false], "kg": null}}}}, "2026-06-22": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, true, false], "kg": null}, "Pompes": {"sets": [true, true, false], "kg": null}, "Fentes sur place": {"sets": [true, false, false], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Crunchs inversés": {"sets": [true, false, false], "kg": null}}}}, "2026-07-02": {"water": 0, "sessions": {"maison": {"Squat": {"sets": [true, false, false], "kg": null}, "Pompes": {"sets": [true, false, false], "kg": null}, "Fentes sur place": {"sets": [true, false, false], "kg": null}, "Planche": {"sets": [true, false, false], "kg": null}, "Crunchs inversés": {"sets": [true, false, false], "kg": null}}}}, "2026-07-07": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 39}, "Chest Press": {"sets": [true, true, true], "kg": 20}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 25}, "Low Row machine": {"sets": [true, true, true], "kg": 20}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-17": {"water": 5, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 4}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-15": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 7}, "Tricep pushdown": {"sets": [true, true, true], "kg": 9}, "Crunch machine": {"sets": [true, true, true], "kg": 23}}}}, "2026-07-13": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 45}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, false], "kg": 6}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-09": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 32}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 27}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 25}, "Curl biceps haltères": {"sets": [true, true, false], "kg": 7}, "Tricep pushdown": {"sets": [true, true, false], "kg": 9}, "Crunch machine": {"sets": [true, true, true], "kg": 23}}}}, "2026-07-20": {"water": 2, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Développé épaules": {"sets": [true, true, true], "kg": 23}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Crunch machine": {"sets": [true, true, true], "kg": 18}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Curl biceps haltères": {"sets": [true, true, false], "kg": 7}}}}, "2026-07-21": {"water": 0, "sessions": {}}, "2026-07-22": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 4}, "Planche": {"sets": [true, true, true], "kg": null}, "Low Row machine": {"sets": [true, true, true], "kg": 32}}}}, "2026-07-23": {"water": 0, "sessions": {}}, "2026-07-24": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 32}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10}, "Développé épaules": {"sets": [true, true, true], "kg": 23}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 7}, "Crunch machine": {"sets": [true, true, false], "kg": null}}}}, "2026-07-27": {"water": 4, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 66, "easy": true}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32}, "Chest Press": {"sets": [true, true, true], "kg": 25, "easy": true}, "Low Row machine": {"sets": [true, true, true], "kg": 32}, "Leg Curl": {"sets": [true, true, true], "kg": 32}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 5}, "Planche": {"sets": [true, true, true], "kg": null}}}}, "2026-07-28": {"water": 0, "sessions": {}}, "2026-07-29": {"water": 3, "sessions": {"salleB": {"Crunch machine": {"sets": [true, true, true], "kg": 23, "easy": false, "sub": null}, "Développé épaules": {"sets": [true, true, true], "kg": 27, "easy": false, "sub": null}, "Leg Extension": {"sets": [true, true, true], "kg": 39, "easy": false, "sub": null}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 39, "easy": false, "sub": null}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3, "easy": false, "sub": null}, "Presse à mollets (ou debout haltères)": {"sets": [true, true, true], "kg": 10, "easy": false, "sub": null}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 8, "easy": false, "sub": null}}}}, "2026-07-31": {"water": 2, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 73, "easy": false, "sub": null}, "Chest Press": {"sets": [true, true, true], "kg": 32, "easy": false, "sub": null}, "Leg Curl": {"sets": [true, true, true], "kg": 32, "easy": false, "sub": null}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 32, "easy": false, "sub": null}, "Low Row machine": {"sets": [true, true, false], "kg": 27, "easy": false, "sub": null}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": null, "easy": false, "sub": null}, "Planche": {"sets": [true, true, true], "kg": null, "easy": false, "sub": null}}}}, "2026-08-01": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [false, false, false], "kg": null, "easy": false, "sub": null}}}}, "2026-08-04": {"water": 0, "sessions": {"salleB": {"Leg Extension": {"sets": [true, true, true], "kg": 39, "easy": false, "sub": null}, "Développé épaules": {"sets": [true, true, true], "kg": 27, "easy": false, "sub": null}, "Crunch machine": {"sets": [true, true, false], "kg": 23, "easy": false, "sub": null}, "Tirage poulie haute prise serrée": {"sets": [true, true, true], "kg": 39, "easy": false, "sub": null}, "Curl biceps haltères": {"sets": [true, true, true], "kg": 8, "easy": false, "sub": null}, "Tricep pushdown": {"sets": [true, true, true], "kg": 11.3, "easy": false, "sub": null}}}}, "2026-08-17": {"water": 0, "sessions": {"salleA": {"Leg Press": {"sets": [true, true, true], "kg": 79, "easy": false, "sub": null}, "Leg Curl": {"sets": [true, true, true], "kg": 39, "easy": false, "sub": null}, "Tirage poulie haute": {"sets": [true, true, true], "kg": 39, "easy": false, "sub": null}, "Élévations latérales haltères": {"sets": [true, true, true], "kg": 5, "easy": false, "sub": null}, "Chest Press": {"sets": [true, true, true], "kg": 32, "easy": false, "sub": null}, "Planche": {"sets": [true, true, true], "kg": null, "easy": false, "sub": null}, "Low Row machine": {"sets": [true, true, true], "kg": 32, "easy": false, "sub": "Tirage horizontal machine"}}}}, "2026-08-18": {"water": 0, "sessions": {}}}};
+
+function loadDB(){
   let loaded = false;
-  try {
-    const raw = localStorage.getItem("lofit-db");
+  try{
+    const raw = localStorage.getItem(KEY);
     if(raw){ db = JSON.parse(raw); if(!db.days) db.days = {}; loaded = true; }
-  } catch(e){ /* pas de données : première utilisation */ }
-  if(!loaded){ db = JSON.parse(JSON.stringify(SEED)); }
-  // Fusion : ajoute les jours du SEED absents des données (séances reconstruites par Claude)
+  }catch(e){}
+  if(!loaded) db = JSON.parse(JSON.stringify(SEED));
   let merged = false;
   for(const k of Object.keys(SEED.days)){
     if(!db.days[k]){ db.days[k] = JSON.parse(JSON.stringify(SEED.days[k])); merged = true; }
   }
-  if(!loaded || merged){
-    try { localStorage.setItem("lofit-db", JSON.stringify(db)); } catch(e){}
-  }
+  if(db.mode && PROGRAMS[db.mode]) mode = db.mode;
+  if(!loaded || merged){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){} }
 }
 function save(){
-  try { localStorage.setItem("lofit-db", JSON.stringify(db)); flashSaved(); }
-  catch(e){ toast("⚠️ Échec de sauvegarde — réessaie"); }
+  try{
+    localStorage.setItem(KEY, JSON.stringify(db));
+    const el = document.getElementById("saved");
+    el.style.opacity = 1; setTimeout(()=>{ el.style.opacity = 0; }, 1000);
+  }catch(e){ toast("Sauvegarde impossible"); }
 }
-function flashSaved(){
-  const el = document.getElementById("saveDot");
-  if(el){ el.style.opacity = 1; setTimeout(()=>{ el.style.opacity = 0; }, 900); }
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
-function todayKey(){ const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-function day(){ const k = todayKey(); if(!db.days[k]) db.days[k] = { water:0, sessions:{} }; return db.days[k]; }
 function frDate(k){ return new Date(k+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}); }
-
-let mode = "salleA";
+function num(v){ return String(v).replace(".",","); }
+function mm(v){ return String(v).padStart(2,"0"); }
+function day(){
+  const k = todayKey();
+  if(!db.days[k]) db.days[k] = { water:0, sessions:{} };
+  return db.days[k];
+}
+function sess(){
+  const t = day();
+  if(!t.sessions[mode]) t.sessions[mode] = {};
+  return t.sessions[mode];
+}
+function exoAt(i){ return PROGRAMS[mode].exos[i]; }
+function stateAt(i){
+  const exo = exoAt(i), s = sess();
+  if(!s[exo.n]) s[exo.n] = { sets:[false,false,false], kg:null, easy:false, sub:null };
+  const st = s[exo.n];
+  if(!Array.isArray(st.sets)) st.sets = [false,false,false];
+  while(st.sets.length < 3) st.sets.push(false);
+  return st;
+}
+function cardioState(){
+  const s = sess(), cd = PROGRAMS[mode].cardio;
+  const n = cd ? cd.blocks.length : 0;
+  if(!s["__cardio"]) s["__cardio"] = { sets:[false], kg:null, easy:false, sub:null, blocks:[] };
+  const c = s["__cardio"];
+  if(!Array.isArray(c.blocks)) c.blocks = [];
+  while(c.blocks.length < n) c.blocks.push(false);
+  if(!Array.isArray(c.sets)) c.sets = [false];
+  return c;
+}
 
 /* ================= EAU ================= */
 function water(d){
@@ -288,178 +457,237 @@ function water(d){
 }
 function renderWater(){
   const w = day().water || 0;
-  const L = (w*GLASS/1000).toFixed(2).replace(".",",");
-  document.getElementById("wVal").textContent = L+" L / 3 L";
-  document.getElementById("wCnt").textContent = w+" verre"+(w>1?"s":"")+" (250 mL)";
-  document.getElementById("wFill").style.width = Math.min(100, w*GLASS/WATER_GOAL*100)+"%";
+  const litres = w * GLASS / 1000;
+  document.getElementById("wVal").textContent = num(litres.toFixed(2)) + " L";
+  document.getElementById("wCnt").textContent = w + (w > 1 ? " verres" : " verre") + " × 250 mL";
+  document.getElementById("wFill").style.width = Math.min(100, litres*1000 / WATER_GOAL * 100) + "%";
 }
 
 /* ================= SÉANCE ================= */
-function setMode(m){ mode = m; db.mode = m; save(); renderChips(); renderExos(); }
-function renderChips(){
-  document.getElementById("chips").innerHTML = Object.keys(PROGRAMS).map(m =>
-    `<button class="chip ${m===mode?'on':''}" onclick="setMode('${m}')">${PROGRAMS[m].label}</button>`
+function setMode(m){ mode = m; db.mode = m; save(); renderPicker(); renderBoard(); }
+function renderPicker(){
+  const keys = Object.keys(PROGRAMS);
+  document.getElementById("picker").innerHTML = keys.map((m,i) =>
+    `<button class="pick ${m===mode?'on':''} ${i===keys.length-1?'wide':''}" onclick="setMode('${m}')">${PROGRAMS[m].label}</button>`
   ).join("");
 }
-function sess(){ const t = day(); if(!t.sessions[mode]) t.sessions[mode] = {}; return t.sessions[mode]; }
-function exoState(n){ const s = sess(); if(!s[n]) s[n] = { sets:[false,false,false], kg:null, easy:false, sub:null }; return s[n]; }
+function toggleSet(i, j){ const st = stateAt(i); st.sets[j] = !st.sets[j]; save(); renderBoard(); }
+function setKg(i, v){ const st = stateAt(i); st.kg = v === "" ? null : parseFloat(v); save(); }
+function toggleEasy(i){ const st = stateAt(i); st.easy = !st.easy; save(); renderBoard(); }
+function setSwap(i, v){ const st = stateAt(i); st.sub = v || null; save(); renderBoard(); }
+function toggleBlock(j){
+  const c = cardioState();
+  c.blocks[j] = !c.blocks[j];
+  c.sets[0] = c.blocks.every(Boolean);
+  save(); renderBoard();
+}
 
-function toggleSet(n, i){
-  const e = exoState(n);
-  e.sets[i] = !e.sets[i];
-  save(); renderExos();
-}
-function setKg(n, v){
-  const e = exoState(n);
-  e.kg = v === "" ? null : parseFloat(v);
-  save();
-}
-function toggleEasy(n){
-  const e = exoState(n);
-  e.easy = !e.easy;
-  save(); renderExos();
-}
-function setSub(n, v){
-  const e = exoState(n);
-  e.sub = v || null;
-  save(); renderExos();
-}
-function qForExo(exo, effName){
+function queryFor(exo, effName){
   if(effName === exo.n) return exo.q;
   const a = (exo.alts||[]).find(x => x.n === effName);
   return a ? a.q : exo.q;
 }
-// Dernier poids pour un exercice donné (par nom effectif : prévu OU substitut)
-function lastKgByEff(effName){
+function lastFor(effName){
   const keys = Object.keys(db.days).filter(k => k !== todayKey()).sort().reverse();
   for(const k of keys){
     const s = db.days[k].sessions && db.days[k].sessions[mode];
     if(!s) continue;
     for(const slot of Object.keys(s)){
-      const e = s[slot]; const eff = e.sub || slot;
-      if(eff === effName && e.kg != null) return { kg:e.kg, date:k, easy:!!e.easy };
+      const e = s[slot];
+      if(slot === "__cardio") continue;
+      if((e.sub || slot) === effName && e.kg != null) return { kg:e.kg, easy:!!e.easy };
     }
   }
   return null;
 }
-function renderExos(){
-  const list = PROGRAMS[mode].exos;
-  const s = day().sessions[mode] || {};
-  document.getElementById("exoList").innerHTML = list.map(exo => {
-    const st = Object.assign({ sets:[false,false,false], kg:null, easy:false, sub:null }, s[exo.n] || {});
-    const sn = exo.n.replace(/'/g,"\\'");
-    const effName = st.sub || exo.n;
-    const inc = exo.inc || 2.5;
-    const last = exo.kg ? lastKgByEff(effName) : null;
-    const suggested = (last && last.easy && last.kg != null) ? Math.round((last.kg + inc)*10)/10 : null;
 
-    const plates = [0,1,2].map(i =>
-      `<button class="plate ${st.sets[i]?'done':''}" onclick="toggleSet('${sn}',${i})">${st.sets[i]?'✓':i+1}</button>`
+/* profil de pente : axe du bas = minutes */
+function cardioSVG(cardio){
+  const blocks = cardio.blocks;
+  const maxT = blocks[blocks.length-1].to;
+  const maxI = Math.max(12, ...blocks.map(b => b.incline || 0));
+  const W = 320, H = 86, padB = 18, padT = 12;
+  const usable = H - padB - padT;
+  let bars = "", ticks = "";
+  blocks.forEach(b => {
+    const x = b.from / maxT * W;
+    const w = (b.to - b.from) / maxT * W - 2;
+    const h = Math.max(3, (b.incline || 0) / maxI * usable);
+    const y = padT + usable - h;
+    const op = (0.45 + (b.incline||0)/maxI*0.55).toFixed(2);
+    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1,w).toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="#FF2E92" opacity="${op}"/>`;
+    bars += `<text x="${(x + w/2).toFixed(1)}" y="${(y-3.5).toFixed(1)}" fill="#F6EFF8" font-size="8.5" font-family="DM Mono, monospace" text-anchor="middle">${b.incline}</text>`;
+    ticks += `<text x="${x.toFixed(1)}" y="${H-4}" fill="#9A8BA6" font-size="8.5" font-family="DM Mono, monospace" text-anchor="middle">${b.from}</text>`;
+  });
+  ticks += `<text x="${W}" y="${H-4}" fill="#9A8BA6" font-size="8.5" font-family="DM Mono, monospace" text-anchor="end">${maxT}</text>`;
+  return `<svg class="profile" viewBox="0 0 ${W} ${H}" role="img" aria-label="Profil du cardio : pente en pourcentage sur l'axe des minutes">
+    <line x1="0" y1="${H-padB+2}" x2="${W}" y2="${H-padB+2}" stroke="#302239" stroke-width="1"/>
+    ${bars}${ticks}
+  </svg>`;
+}
+function cardioRows(cardio, state){
+  const maxI = Math.max(12, ...cardio.blocks.map(b => b.incline || 0));
+  const head = `<div class="blk-hd"><span>Min</span><span>Durée</span><span>Pente</span><span style="text-align:right">Vitesse</span></div>`;
+  const rows = cardio.blocks.map((b, j) => {
+    const done = !!state.blocks[j];
+    const dur = b.to - b.from;
+    const barW = Math.max(4, (b.incline||0) / maxI * 72);
+    return `<button class="blk ${done?'done':''}" onclick="toggleBlock(${j})" aria-pressed="${done}">
+      <span class="b-t">${mm(b.from)}–${mm(b.to)}</span>
+      <span class="b-d">${dur} min</span>
+      <span class="b-i"><i class="b-bar" style="width:${barW.toFixed(0)}px"></i>${b.incline}%</span>
+      <span class="b-v">${num(b.speed)} km/h</span>
+    </button>`;
+  }).join("");
+  return head + rows;
+}
+
+function renderBoard(){
+  const prog = PROGRAMS[mode];
+  const s = day().sessions[mode] || {};
+  let html = "";
+
+  if(prog.cardio){
+    const c = cardioState();
+    const doneN = c.blocks.filter(Boolean).length;
+    html += `<div class="cardio">
+      <div class="cardio-hd">
+        <div>
+          <div class="cardio-ttl">Cardio tapis</div>
+          <div class="cardio-meta">${prog.cardio.total} · barres = pente % · axe = minutes</div>
+        </div>
+        <div class="cardio-cnt">${doneN}/${c.blocks.length}</div>
+      </div>
+      ${cardioSVG(prog.cardio)}
+      ${cardioRows(prog.cardio, c)}
+      ${prog.cardio.tip ? `<div class="cardio-tip">${prog.cardio.tip}</div>` : ""}
+    </div>`;
+  }
+
+  html += prog.exos.map((exo, i) => {
+    const st = Object.assign({ sets:[false,false,false], kg:null, easy:false, sub:null }, s[exo.n] || {});
+    while(st.sets.length < 3) st.sets.push(false);
+    const eff = st.sub || exo.n;
+    const last = exo.kg ? lastFor(eff) : null;
+    const inc = exo.inc || 2.5;
+    const target = (last && last.easy && last.kg != null) ? Math.round((last.kg + inc)*10)/10 : null;
+
+    const setsHTML = [0,1,2].map(j =>
+      `<button class="set ${st.sets[j]?'done':''}" onclick="toggleSet(${i},${j})" aria-label="Série ${j+1}">${st.sets[j]?'✓':j+1}</button>`
     ).join("");
 
-    const ph = suggested != null ? suggested : (last ? last.kg : '—');
-    const kgInput = exo.kg ? `<div class="kgrow">
-      <label>Charge</label>
-      <input class="kg" type="number" inputmode="decimal" step="0.5" min="0"
-        value="${st.kg != null ? st.kg : ''}"
-        placeholder="${ph}"
-        onchange="setKg('${sn}', this.value)">
-      <span class="kgu">kg</span>
+    const placeholder = target != null ? target : (last ? last.kg : "—");
+    const loadHTML = exo.kg ? `<div class="load">
+      <label for="kg${i}">Charge</label>
+      <input id="kg${i}" type="number" inputmode="decimal" step="0.5" min="0"
+        value="${st.kg != null ? st.kg : ''}" placeholder="${placeholder}"
+        onchange="setKg(${i}, this.value)">
+      <span class="unit">kg</span>
     </div>` : "";
 
-    const subNote = st.sub ? `<div class="subnote">↔ remplace « ${exo.n} »</div>` : "";
-    let lastTxt = "";
-    if(last){
-      lastTxt = `<div class="last">Dernier : <b>${String(last.kg).replace('.',',')} kg</b>${last.easy ? ' <span class="ez">⚡ facile</span>' : ''}</div>`;
-    }
-    const sugTxt = suggested != null
-      ? `<div class="sug">⚡ Facile la dernière fois → essaie <b>${String(suggested).replace('.',',')} kg</b> aujourd'hui</div>`
-      : "";
+    const lastHTML = last ? `<div class="exo-last">Dernier : <b>${num(last.kg)} kg</b></div>` : "";
+    const flagHTML = target != null ? `<div class="flag">Passé facile → viser <b>${num(target)} kg</b></div>` : "";
+    const easyHTML = exo.kg ? `<button class="tool ${st.easy?'on':''}" onclick="toggleEasy(${i})">${st.easy ? "Facile ✓" : "C'était facile"}</button>` : "";
+    const photoHTML = `<a class="tool" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(queryFor(exo, eff))}" target="_blank" rel="noopener">Voir la machine</a>`;
 
-    const easyPill = `<button class="ezbtn ${st.easy?'on':''}" onclick="toggleEasy('${sn}')">${st.easy ? '⚡ Facile ✓' : "⚡ C'était facile"}</button>`;
-    const photoBtn = `<a class="photo" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(qForExo(exo, effName))}" target="_blank" rel="noopener">📷 Voir la machine</a>`;
-
-    let subSel = "";
+    let swapHTML = "";
     if(exo.alts && exo.alts.length){
-      const opts = `<option value="" ${!st.sub?'selected':''}>▶ ${exo.n} (prévu)</option>` +
-        exo.alts.map(a => `<option value="${a.n}" ${st.sub===a.n?'selected':''}>↔ ${a.n}</option>`).join("");
-      subSel = `<select class="sub" onchange="setSub('${sn}', this.value)">${opts}</select>`;
+      const opts = `<option value="" ${!st.sub?'selected':''}>${exo.n} (prévu)</option>` +
+        exo.alts.map(a => `<option value="${a.n}" ${st.sub===a.n?'selected':''}>${a.n}</option>`).join("");
+      swapHTML = `<select class="swap" onchange="setSwap(${i}, this.value)" aria-label="Remplacer l'exercice">${opts}</select>`;
     }
 
     return `<div class="exo">
-      <div class="top">
-        <div><div class="nm">${effName}</div><div class="tg">${exo.t}</div>${subNote}${lastTxt}${sugTxt}</div>
-        <div class="plates">${plates}</div>
+      <div class="exo-hd">
+        <div>
+          <div class="exo-nm">${eff}</div>
+          <div class="exo-tg">${exo.t}</div>
+          ${st.sub ? `<div class="swapped">remplace ${exo.n}</div>` : ""}
+          ${lastHTML}${flagHTML}
+        </div>
+        <div class="sets">${setsHTML}</div>
       </div>
-      ${kgInput}
-      <div class="exo-actions">${easyPill}${photoBtn}</div>
-      ${subSel}
+      ${loadHTML}
+      <div class="tools">${easyHTML}${photoHTML}</div>
+      ${swapHTML}
     </div>`;
   }).join("");
+
+  document.getElementById("board").innerHTML = html;
+  document.getElementById("subline").textContent = prog.label;
 }
 
 /* ================= HISTORIQUE ================= */
-function renderHistory(){
-  const keys = Object.keys(db.days).sort().reverse();
-  let sessCount = 0, weekCount = 0;
-  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
-  keys.forEach(k => {
-    const d = db.days[k];
-    const done = Object.keys(d.sessions||{}).filter(m => hasSets(d.sessions[m]));
-    sessCount += done.length;
-    if(new Date(k+"T12:00:00") >= weekAgo) weekCount += done.length;
-  });
-  document.getElementById("stDays").textContent = keys.length;
-  document.getElementById("stSess").textContent = sessCount;
-  document.getElementById("stWeek").textContent = weekCount;
-
-  if(keys.length === 0){
-    document.getElementById("histList").innerHTML =
-      `<div class="empty">Rien pour l'instant.<br>Coche tes séries et ton eau dans l'onglet Aujourd'hui — chaque jour apparaîtra ici automatiquement.</div>`;
-    return;
-  }
-  document.getElementById("histList").innerHTML = keys.map(k => {
-    const d = db.days[k];
-    const L = ((d.water||0)*GLASS/1000).toFixed(2).replace(".",",");
-    const modesDone = Object.keys(d.sessions||{}).filter(m => hasSets(d.sessions[m]) && PROGRAMS[m]);
-    const sessions = modesDone.map(m => {
-      const rows = Object.keys(d.sessions[m]).map(slot => {
-        const e = d.sessions[m][slot];
-        const c = (e.sets||[]).filter(Boolean).length;
-        if(c === 0 && e.kg == null) return "";
-        const eff = e.sub || slot;
-        const prev = prevKgByEffBefore(m, eff, k);
-        let delta = "";
-        if(e.kg != null && prev != null){
-          const diff = Math.round((e.kg - prev)*10)/10;
-          if(diff > 0) delta = `<span class="d up">▲ +${String(diff).replace('.',',')}</span>`;
-          else if(diff < 0) delta = `<span class="d dn">▼ ${String(diff).replace('.',',')}</span>`;
-        }
-        const tags = `${e.sub ? ' <span class="hsub">↔</span>' : ''}${e.easy ? ' <span class="hz">⚡</span>' : ''}`;
-        return `<div class="hex"><span>${eff} · ${c}/3${tags}</span><span>${e.kg != null ? `<span class="w">${String(e.kg).replace('.',',')} kg</span>${delta}` : ""}</span></div>`;
-      }).join("");
-      const total = Object.values(d.sessions[m]).reduce((a,e)=>a+(e.sets||[]).filter(Boolean).length,0);
-      const target = PROGRAMS[m].exos.length*3;
-      return `<div class="hsess"><div class="sn">${PROGRAMS[m].label} — ${total}/${target} séries</div>${rows}</div>`;
-    }).join("");
-    return `<div class="hday">
-      <div class="hd"><span class="dt">${frDate(k)}</span><span class="hw">💧 ${L} L</span></div>
-      ${sessions || '<div class="hnone">Pas de séance ce jour</div>'}
-    </div>`;
-  }).join("");
+function hasSets(s){
+  return Object.values(s||{}).some(e => (e.sets||[]).some(Boolean) || (e.blocks||[]).some(Boolean) || e.kg != null);
 }
-function hasSets(s){ return Object.values(s||{}).some(e => (e.sets||[]).some(Boolean) || e.kg != null); }
-function prevKgByEffBefore(m, effName, beforeKey){
+function prevKgBefore(m, effName, beforeKey){
   const keys = Object.keys(db.days).filter(k => k < beforeKey).sort().reverse();
   for(const k of keys){
     const s = db.days[k].sessions && db.days[k].sessions[m];
     if(!s) continue;
     for(const slot of Object.keys(s)){
-      const e = s[slot]; const eff = e.sub || slot;
-      if(eff === effName && e.kg != null) return e.kg;
+      if(slot === "__cardio") continue;
+      const e = s[slot];
+      if((e.sub || slot) === effName && e.kg != null) return e.kg;
     }
   }
   return null;
+}
+function renderHistory(){
+  const keys = Object.keys(db.days).sort().reverse();
+  let sessCount = 0, weekCount = 0;
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
+  keys.forEach(k => {
+    const done = Object.keys(db.days[k].sessions||{}).filter(m => hasSets(db.days[k].sessions[m]));
+    sessCount += done.length;
+    if(new Date(k+"T12:00:00") >= weekAgo) weekCount += done.length;
+  });
+  document.getElementById("stSess").textContent = sessCount;
+  document.getElementById("stWeek").textContent = weekCount;
+  document.getElementById("stDays").textContent = keys.length;
+
+  if(keys.length === 0){
+    document.getElementById("histList").innerHTML =
+      `<div class="empty">Rien pour l'instant.<br>Coche tes blocs et tes séries dans l'onglet Aujourd'hui.</div>`;
+    return;
+  }
+  document.getElementById("histList").innerHTML = keys.map(k => {
+    const d = db.days[k];
+    const litres = num(((d.water||0) * GLASS / 1000).toFixed(2));
+    const modes = Object.keys(d.sessions||{}).filter(m => hasSets(d.sessions[m]) && PROGRAMS[m]);
+    const body = modes.map(m => {
+      const prog = PROGRAMS[m];
+      let done = 0;
+      const planned = prog.exos.length * 3;
+      const rows = Object.keys(d.sessions[m]).map(slot => {
+        const e = d.sessions[m][slot];
+        if(slot === "__cardio"){
+          const nb = (e.blocks||[]).filter(Boolean).length;
+          const tot = prog.cardio ? prog.cardio.blocks.length : 0;
+          if(nb === 0) return "";
+          return `<div class="line"><span>Cardio tapis</span><span class="v">${nb}/${tot} blocs</span></div>`;
+        }
+        const c = (e.sets||[]).filter(Boolean).length;
+        done += c;
+        if(c === 0 && e.kg == null) return "";
+        const eff = e.sub || slot;
+        let delta = "";
+        const prev = prevKgBefore(m, eff, k);
+        if(e.kg != null && prev != null){
+          const diff = Math.round((e.kg - prev)*10)/10;
+          if(diff > 0) delta = `<span class="up">+${num(diff)}</span>`;
+          else if(diff < 0) delta = `<span class="dn">${num(diff)}</span>`;
+        }
+        return `<div class="line"><span>${eff} · ${c}/3${e.easy?' · facile':''}</span><span>${e.kg != null ? `<span class="v">${num(e.kg)} kg</span>${delta}` : ""}</span></div>`;
+      }).join("");
+      return `<div class="entry-s"><div class="entry-sn">${prog.label} — ${done}/${planned} séries</div>${rows}</div>`;
+    }).join("");
+    return `<div class="entry">
+      <div class="entry-hd"><span class="entry-dt">${frDate(k)}</span><span class="entry-w">${litres} L</span></div>
+      ${body || '<div class="blank">Pas de séance ce jour</div>'}
+    </div>`;
+  }).join("");
 }
 
 /* ================= RÉGLAGES ================= */
@@ -467,49 +695,46 @@ function exportData(){
   const box = document.getElementById("ioBox");
   box.value = JSON.stringify(db);
   box.select();
-  try { document.execCommand("copy"); toast("Données copiées — colle-les dans tes notes"); }
-  catch(e){ toast("Sélectionne et copie le texte manuellement"); }
+  try{ document.execCommand("copy"); toast("Données copiées ✦"); }
+  catch(e){ toast("Sélectionne le texte et copie-le à la main"); }
 }
 function importData(){
   const box = document.getElementById("ioBox");
-  try {
+  try{
     const data = JSON.parse(box.value);
     if(!data.days) throw new Error("format");
-    db = data; save();
-    renderAll(); toast("Import réussi ✓");
-  } catch(e){ toast("Format invalide — colle un export complet"); }
+    db = data; if(!db.days) db.days = {};
+    if(db.mode && PROGRAMS[db.mode]) mode = db.mode;
+    save(); renderAll(); toast("Import réussi ✦");
+  }catch(e){ toast("Format invalide"); }
 }
-async function wipe(){
+function wipe(){
   if(confirm("Effacer TOUTES les données ? Cette action est définitive.")){
-    db = { days:{} };
-    try { localStorage.setItem("lofit-db", JSON.stringify(db)); } catch(e){}
-    renderAll(); toast("Données effacées");
+    db = { days:{}, mode:mode };
+    save(); renderAll(); toast("Données effacées");
   }
 }
 function toast(msg){
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 2200);
+  setTimeout(()=>t.classList.remove("show"), 2400);
 }
 
 /* ================= NAV ================= */
 function tab(v, btn){
-  document.querySelectorAll(".view").forEach(e=>e.classList.remove("on"));
+  document.querySelectorAll(".view").forEach(e => e.classList.remove("on"));
   document.getElementById("v-"+v).classList.add("on");
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("on"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("on"));
   btn.classList.add("on");
   if(v === "history") renderHistory();
+  window.scrollTo(0,0);
 }
 
 /* ================= INIT ================= */
-function renderAll(){ renderWater(); renderChips(); renderExos(); renderHistory(); }
-document.getElementById("dayName").textContent = frDate(todayKey());
-document.getElementById("exoList").innerHTML = '<div class="empty">Chargement de tes données...</div>';
-(async () => {
-  await loadDB();
-  if(db.mode && PROGRAMS[db.mode]) mode = db.mode;
-  renderAll();
-})();
+function renderAll(){ renderWater(); renderPicker(); renderBoard(); renderHistory(); }
+loadDB();
+document.getElementById("today").textContent = frDate(todayKey());
+renderAll();
 </script>
 </body>
 </html>
