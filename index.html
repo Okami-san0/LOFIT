@@ -146,6 +146,16 @@ main{padding:18px 16px}
 }
 .set.done{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 0 14px var(--glow)}
 .set:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.setgrid{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.srow{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:12px;background:#0D0812;border:1px solid var(--rule)}
+.srow.on{border-color:rgba(255,46,146,.45)}
+.sin{width:64px;padding:8px 6px;border-radius:9px;border:1px solid var(--rule);background:var(--panel2);color:var(--white);
+  font-family:'DM Mono',monospace;font-size:15px;font-weight:500;text-align:center}
+.sin.rp{width:54px}
+.sin:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 1px var(--pink)}
+.sin.short{border-color:#F5A623;color:#F5C26B}
+.su{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--faint);min-width:26px}
+.line .det{font-size:11.5px;color:var(--dim);font-weight:400}
 .load{display:flex;align-items:center;gap:9px;margin-top:12px}
 .load label{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .load input{
@@ -432,12 +442,26 @@ function sess(){
 function exoAt(i){ return PROGRAMS[mode].exos[i]; }
 function stateAt(i){
   const exo = exoAt(i), s = sess();
-  if(!s[exo.n]) s[exo.n] = { sets:[false,false,false], kg:null, easy:false, sub:null };
+  if(!s[exo.n]) s[exo.n] = { sets:[false,false,false], reps:[null,null,null], kgs:[null,null,null], kg:null, easy:false, sub:null };
   const st = s[exo.n];
   if(!Array.isArray(st.sets)) st.sets = [false,false,false];
+  if(!Array.isArray(st.reps)) st.reps = [null,null,null];
+  if(!Array.isArray(st.kgs)) st.kgs = [st.kg ?? null, st.kg ?? null, st.kg ?? null].map((v,j)=> st.sets[j] ? v : null);
   while(st.sets.length < 3) st.sets.push(false);
+  while(st.reps.length < 3) st.reps.push(null);
+  while(st.kgs.length < 3) st.kgs.push(null);
   return st;
 }
+/* charge de référence = la plus lourde des séries (sert à l'historique et aux suggestions) */
+function topKg(st){
+  const v = (st.kgs||[]).filter(x => x != null);
+  return v.length ? Math.max(...v) : null;
+}
+function targetReps(exo){
+  const m = /×\s*(\d+)/.exec(exo.t);
+  return m ? parseInt(m[1],10) : null;
+}
+function unitOf(exo){ return /sec/.test(exo.t) ? "sec" : "reps"; }
 function cardioState(){
   const s = sess(), cd = PROGRAMS[mode].cardio;
   const n = cd ? cd.blocks.length : 0;
@@ -471,8 +495,35 @@ function renderPicker(){
     `<button class="pick ${m===mode?'on':''} ${i===keys.length-1?'wide':''}" onclick="setMode('${m}')">${PROGRAMS[m].label}</button>`
   ).join("");
 }
-function toggleSet(i, j){ const st = stateAt(i); st.sets[j] = !st.sets[j]; save(); renderBoard(); }
-function setKg(i, v){ const st = stateAt(i); st.kg = v === "" ? null : parseFloat(v); save(); }
+/* un appui = série faite comme prévu ; les champs se pré-remplissent, tu corriges si besoin */
+function toggleSet(i, j){
+  const exo = exoAt(i), st = stateAt(i);
+  st.sets[j] = !st.sets[j];
+  if(st.sets[j]){
+    const ref = lastDetail(st.sub || exo.n);
+    if(exo.kg && st.kgs[j] == null){
+      st.kgs[j] = (j > 0 && st.kgs[j-1] != null) ? st.kgs[j-1]
+               : (ref && ref.kgs[j] != null ? suggestKg(exo, ref, j) : null);
+    }
+    if(st.reps[j] == null){
+      st.reps[j] = (ref && ref.reps[j] != null) ? ref.reps[j] : targetReps(exo);
+    }
+  }
+  st.kg = topKg(st);
+  save(); renderBoard();
+}
+function setSetKg(i, j, v){
+  const st = stateAt(i);
+  st.kgs[j] = v === "" ? null : parseFloat(v);
+  st.kg = topKg(st);
+  save(); renderBoard();
+}
+function setSetReps(i, j, v){
+  const st = stateAt(i);
+  st.reps[j] = v === "" ? null : parseInt(v,10);
+  if(st.reps[j] != null) st.sets[j] = true;
+  save(); renderBoard();
+}
 function toggleEasy(i){ const st = stateAt(i); st.easy = !st.easy; save(); renderBoard(); }
 function setSwap(i, v){ const st = stateAt(i); st.sub = v || null; save(); renderBoard(); }
 function toggleBlock(j){
@@ -486,6 +537,36 @@ function queryFor(exo, effName){
   if(effName === exo.n) return exo.q;
   const a = (exo.alts||[]).find(x => x.n === effName);
   return a ? a.q : exo.q;
+}
+function lastDetail(effName){
+  const keys = Object.keys(db.days).filter(k => k !== todayKey()).sort().reverse();
+  for(const k of keys){
+    const s = db.days[k].sessions && db.days[k].sessions[mode];
+    if(!s) continue;
+    for(const slot of Object.keys(s)){
+      if(slot === "__cardio") continue;
+      const e = s[slot];
+      if((e.sub || slot) !== effName) continue;
+      const kgs = Array.isArray(e.kgs) ? e.kgs : [e.kg ?? null, e.kg ?? null, e.kg ?? null];
+      const reps = Array.isArray(e.reps) ? e.reps : [null,null,null];
+      if(e.kg == null && !kgs.some(x => x != null) && !reps.some(x => x != null)) continue;
+      return { kgs, reps, kg: e.kg ?? (kgs.some(x=>x!=null) ? Math.max(...kgs.filter(x=>x!=null)) : null), easy: !!e.easy, legacy: !Array.isArray(e.kgs) };
+    }
+  }
+  return null;
+}
+function suggestKg(exo, ref, j){
+  const base = ref.kgs[j] != null ? ref.kgs[j] : ref.kg;
+  if(base == null) return null;
+  return ref.easy ? Math.round((base + (exo.inc || 2.5))*10)/10 : base;
+}
+function fmtSets(kgs, reps, unit){
+  return [0,1,2].map(j => {
+    const k = kgs[j], r = reps[j];
+    if(k == null && r == null) return null;
+    if(k == null) return `${r}${unit==="sec"?"s":""}`;
+    return r == null ? `${num(k)}` : `${num(k)}×${r}`;
+  }).filter(Boolean).join(" · ");
 }
 function lastFor(effName){
   const keys = Object.keys(db.days).filter(k => k !== todayKey()).sort().reverse();
@@ -565,27 +646,39 @@ function renderBoard(){
   }
 
   html += prog.exos.map((exo, i) => {
-    const st = Object.assign({ sets:[false,false,false], kg:null, easy:false, sub:null }, s[exo.n] || {});
+    const raw = s[exo.n] || {};
+    const st = {
+      sets: (raw.sets || [false,false,false]).slice(0,3),
+      reps: Array.isArray(raw.reps) ? raw.reps.slice(0,3) : [null,null,null],
+      kgs: Array.isArray(raw.kgs) ? raw.kgs.slice(0,3) : [raw.kg ?? null, raw.kg ?? null, raw.kg ?? null].map((v,j)=> (raw.sets||[])[j] ? v : null),
+      easy: !!raw.easy, sub: raw.sub || null
+    };
     while(st.sets.length < 3) st.sets.push(false);
     const eff = st.sub || exo.n;
-    const last = exo.kg ? lastFor(eff) : null;
-    const inc = exo.inc || 2.5;
-    const target = (last && last.easy && last.kg != null) ? Math.round((last.kg + inc)*10)/10 : null;
+    const unit = unitOf(exo);
+    const ref = lastDetail(eff);
+    const tReps = targetReps(exo);
+    const target = (exo.kg && ref && ref.easy && ref.kg != null) ? Math.round((ref.kg + (exo.inc || 2.5))*10)/10 : null;
 
-    const setsHTML = [0,1,2].map(j =>
-      `<button class="set ${st.sets[j]?'done':''}" onclick="toggleSet(${i},${j})" aria-label="Série ${j+1}">${st.sets[j]?'✓':j+1}</button>`
-    ).join("");
+    const rowsHTML = [0,1,2].map(j => {
+      const done = st.sets[j];
+      const phKg = exo.kg ? (j > 0 && st.kgs[j-1] != null ? st.kgs[j-1] : (ref ? (suggestKg(exo, ref, j) ?? "—") : "—")) : "";
+      const phReps = (ref && ref.reps[j] != null) ? ref.reps[j] : (tReps ?? "—");
+      const short = done && tReps != null && st.reps[j] != null && st.reps[j] < tReps;
+      return `<div class="srow ${done?'on':''}">
+        <button class="set ${done?'done':''}" onclick="toggleSet(${i},${j})" aria-label="Série ${j+1}">${done?'✓':j+1}</button>
+        ${exo.kg ? `<input class="sin" type="number" inputmode="decimal" step="0.5" min="0" aria-label="Charge série ${j+1}"
+          value="${st.kgs[j] != null ? st.kgs[j] : ''}" placeholder="${phKg}" onchange="setSetKg(${i},${j},this.value)"><span class="su">kg</span>` : ''}
+        <input class="sin rp ${short?'short':''}" type="number" inputmode="numeric" step="1" min="0" aria-label="Répétitions série ${j+1}"
+          value="${st.reps[j] != null ? st.reps[j] : ''}" placeholder="${phReps}" onchange="setSetReps(${i},${j},this.value)"><span class="su">${unit}</span>
+      </div>`;
+    }).join("");
 
-    const placeholder = target != null ? target : (last ? last.kg : "—");
-    const loadHTML = exo.kg ? `<div class="load">
-      <label for="kg${i}">Charge</label>
-      <input id="kg${i}" type="number" inputmode="decimal" step="0.5" min="0"
-        value="${st.kg != null ? st.kg : ''}" placeholder="${placeholder}"
-        onchange="setKg(${i}, this.value)">
-      <span class="unit">kg</span>
-    </div>` : "";
-
-    const lastHTML = last ? `<div class="exo-last">Dernier : <b>${num(last.kg)} kg</b></div>` : "";
+    let lastHTML = "";
+    if(ref){
+      const det = ref.legacy ? (ref.kg != null ? `${num(ref.kg)} kg` : "") : fmtSets(ref.kgs, ref.reps, unit);
+      if(det) lastHTML = `<div class="exo-last">Dernier : <b>${det}</b></div>`;
+    }
     const flagHTML = target != null ? `<div class="flag">Passé facile → viser <b>${num(target)} kg</b></div>` : "";
     const easyHTML = exo.kg ? `<button class="tool ${st.easy?'on':''}" onclick="toggleEasy(${i})">${st.easy ? "Facile ✓" : "C'était facile"}</button>` : "";
     const photoHTML = `<a class="tool" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(queryFor(exo, eff))}" target="_blank" rel="noopener">Voir la machine</a>`;
@@ -598,16 +691,11 @@ function renderBoard(){
     }
 
     return `<div class="exo">
-      <div class="exo-hd">
-        <div>
-          <div class="exo-nm">${eff}</div>
-          <div class="exo-tg">${exo.t}</div>
-          ${st.sub ? `<div class="swapped">remplace ${exo.n}</div>` : ""}
-          ${lastHTML}${flagHTML}
-        </div>
-        <div class="sets">${setsHTML}</div>
-      </div>
-      ${loadHTML}
+      <div class="exo-nm">${eff}</div>
+      <div class="exo-tg">${exo.t}</div>
+      ${st.sub ? `<div class="swapped">remplace ${exo.n}</div>` : ""}
+      ${lastHTML}${flagHTML}
+      <div class="setgrid">${rowsHTML}</div>
       <div class="tools">${easyHTML}${photoHTML}</div>
       ${swapHTML}
     </div>`;
@@ -619,7 +707,7 @@ function renderBoard(){
 
 /* ================= HISTORIQUE ================= */
 function hasSets(s){
-  return Object.values(s||{}).some(e => (e.sets||[]).some(Boolean) || (e.blocks||[]).some(Boolean) || e.kg != null);
+  return Object.values(s||{}).some(e => (e.sets||[]).some(Boolean) || (e.blocks||[]).some(Boolean) || e.kg != null || (e.reps||[]).some(x => x != null));
 }
 function prevKgBefore(m, effName, beforeKey){
   const keys = Object.keys(db.days).filter(k => k < beforeKey).sort().reverse();
@@ -679,7 +767,10 @@ function renderHistory(){
           if(diff > 0) delta = `<span class="up">+${num(diff)}</span>`;
           else if(diff < 0) delta = `<span class="dn">${num(diff)}</span>`;
         }
-        return `<div class="line"><span>${eff} · ${c}/3${e.easy?' · facile':''}</span><span>${e.kg != null ? `<span class="v">${num(e.kg)} kg</span>${delta}` : ""}</span></div>`;
+        const conf = prog.exos.find(x => x.n === slot);
+        const u = conf ? unitOf(conf) : "reps";
+        const det = Array.isArray(e.kgs) ? fmtSets(e.kgs, e.reps || [null,null,null], u) : (e.kg != null ? `${num(e.kg)} kg` : "");
+        return `<div class="line"><span>${eff} · ${c}/3${e.easy?' · facile':''}${det ? `<br><span class="v det">${det}</span>` : ""}</span><span>${e.kg != null ? `<span class="v">${num(e.kg)} kg</span>${delta}` : ""}</span></div>`;
       }).join("");
       return `<div class="entry-s"><div class="entry-sn">${prog.label} — ${done}/${planned} séries</div>${rows}</div>`;
     }).join("");
